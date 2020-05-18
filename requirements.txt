@@ -1,0 +1,10 @@
+numpy
+math
+Pillow
+matplotlib
+scikit-image
+h5py
+imgaug
+torch
+torchvision
+IPython[all]
