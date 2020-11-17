@@ -281,9 +281,9 @@ class ChangeBackground(object):
   def __call__(self, sample):
     imidx, image, label = sample['imidx'], sample['image'],sample['label']
     rate_of_appliance = 1
-	if self.appliance != "always":
-		rate_of_appliance = random.random()
-	if rate_of_appliance >= 0.5:
+    if self.appliance != "always":
+      rate_of_appliance = random.random()
+    if rate_of_appliance >= 0.5:
       new_img = self.generate_random_gradient(image.shape[1], image.shape[0])
       idx = (label>=0.5).all(axis=2)
       new_img_c = new_img.copy()
