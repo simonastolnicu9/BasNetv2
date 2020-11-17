@@ -297,7 +297,7 @@ class ChangeBackground(object):
 		img = Image.new(mode='RGB', size=(image_width, image_height))
 		draw = ImageDraw.Draw(img)
 
-		r2,g2,b2 = random.choice([(random.randint(0,255), random.randint(0,255), random.randint(0,255)),(247,243,223),(238,242,239),(234, 234, 234),(180, 170, 168),(74, 74, 70)])
+		r2,g2,b2 = random.choice([(random.randint(0,255), random.randint(0,255), random.randint(0,255)),(247,243,223),(238,242,239),(234, 234, 234),(180, 170, 168),(74, 74, 70),(255,255,255)])
 		r,g,b = r2+(255-r2)*3/4,g2+(255-g2)*3/4,b2+(255-b2)*3/4
 		
 		dr = (r2 - r)/image_height
@@ -308,6 +308,7 @@ class ChangeBackground(object):
 		#grey compare site rgb(234, 234, 234)
 		#cream rgb(180, 170, 168)
 		#black comapre site rgb(74, 74, 70)
+		#white
 		
 		for i in range(image_height):
 			r,g,b = r+dr, g+dg, b+db
