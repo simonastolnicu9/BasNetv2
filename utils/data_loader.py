@@ -77,9 +77,9 @@ class Rescale(object):
 
 class RandomCrop(object):
 
-	def __init__(self, rate_of_appliance, output_size):
-		assert isinstance(rate_of_appliance, (str))
-		self.rate_of_appliance = rate_of_appliance
+	def __init__(self, appliance, output_size):
+		assert isinstance(appliance, (str))
+		self.appliance = appliance
 		assert isinstance(output_size, (int, tuple))
 		if isinstance(output_size, int):
 			self.output_size = (output_size, output_size)
@@ -89,11 +89,10 @@ class RandomCrop(object):
         
 	def __call__(self,sample):
 		imidx, image, label = sample['imidx'], sample['image'], sample['label']
-		if self.rate_of_appliance == "always":
-			self.rate_of_appliance = 1
-		else:
-			self.rate_of_appliance = random.random()
-		if self.rate_of_appliance >= 0.5:
+		rate_of_appliance = 1
+		if self.appliance != "always":
+			rate_of_appliance = random.random()
+		if rate_of_appliance >= 0.5:
 			h, w = image.shape[:2]
 			new_h, new_w = self.output_size
 
@@ -108,9 +107,9 @@ class RandomCrop(object):
 
 class Rotate(object):
 
-	def __init__(self, rate_of_appliance, degrees):
-		assert isinstance(rate_of_appliance, (str))
-		self.rate_of_appliance = rate_of_appliance
+	def __init__(self, appliance, degrees):
+		assert isinstance(appliance, (str))
+		self.appliance = appliance
 		assert isinstance(degrees, (int, tuple))
 		if isinstance(degrees, int):
 			self.degrees = (-degrees, degrees)
@@ -120,14 +119,32 @@ class Rotate(object):
         
 	def __call__(self,sample):
 		imidx, image, label = sample['imidx'], sample['image'], sample['label']
-		if self.rate_of_appliance == "always":
-			self.rate_of_appliance = 1
-		else:
-			self.rate_of_appliance = random.random()
-		if self.rate_of_appliance >= 0.5:
+		rate_of_appliance = 1
+		if self.appliance != "always":
+			rate_of_appliance = random.random()
+		if rate_of_appliance >= 0.5:
 			angle = random.uniform(self.degrees[0],self.degrees[1])
 			image = transform.rotate(image, angle, preserve_range=True)
 			label = transform.rotate(label, angle, preserve_range=True)
+
+		return {'imidx':imidx,'image':image, 'label':label}
+
+
+class VerticalFlip(object):
+
+	def __init__(self, appliance):
+		assert isinstance(appliance, (str))
+		self.appliance = appliance
+
+	def __call__(self,sample):
+		imidx, image, label = sample['imidx'], sample['image'], sample['label']
+		rate_of_appliance = 1
+		if self.appliance != "always":
+			rate_of_appliance = random.random()
+		print(rate_of_appliance)
+		if rate_of_appliance >= 0.5:
+			image = np.flipud(image)
+			label = np.flipud(label)
 
 		return {'imidx':imidx,'image':image, 'label':label}
 
@@ -257,17 +274,16 @@ class ToTensorLab(object):
 
 
 class ChangeBackground(object):
-  def __init__(self,rate_of_appliance):
-    assert isinstance(rate_of_appliance, (str))
-    self.rate_of_appliance = rate_of_appliance
+  def __init__(self,appliance):
+    assert isinstance(appliance, (str))
+    self.appliance = appliance
     
   def __call__(self, sample):
     imidx, image, label = sample['imidx'], sample['image'],sample['label']
-    if self.rate_of_appliance == "always":
-      self.rate_of_appliance = 1
-    else:
-      self.rate_of_appliance = random.random()
-    if  self.rate_of_appliance >= 0.5:
+    rate_of_appliance = 1
+	if self.appliance != "always":
+		rate_of_appliance = random.random()
+	if rate_of_appliance >= 0.5:
       new_img = self.generate_random_gradient(image.shape[1], image.shape[0])
       idx = (label>=0.5).all(axis=2)
       new_img_c = new_img.copy()
@@ -300,9 +316,9 @@ class ChangeBackground(object):
 
 class CombineImages(object):
 
-	def __init__(self, rate_of_appliance, img_name_list, label_name_list):
-		assert isinstance(rate_of_appliance, (str))
-		self.rate_of_appliance = rate_of_appliance
+	def __init__(self, appliance, img_name_list, label_name_list):
+		assert isinstance(appliance, (str))
+		self.appliance = appliance
 		assert isinstance(img_name_list, (list))
 		assert isinstance(label_name_list, (list))
 		self.img_name_list = img_name_list
@@ -310,11 +326,10 @@ class CombineImages(object):
         
 	def __call__(self,sample):
 		imidx, image, label = sample['imidx'], sample['image'], sample['label']
-		if self.rate_of_appliance == "always":
-			self.rate_of_appliance = 1
-		else:
-			self.rate_of_appliance = random.random()
-		if self.rate_of_appliance >= 0.5:
+		rate_of_appliance = 1
+		if self.appliance != "always":
+			rate_of_appliance = random.random()
+		if rate_of_appliance >= 0.5:
 			if imidx+1 < len(self.img_name_list):
 				image2 = io.imread(self.img_name_list[imidx[0]+1])
 
