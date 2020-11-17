@@ -143,7 +143,6 @@ class VerticalFlip(object):
 		rate_of_appliance = 1
 		if self.appliance != "always":
 			rate_of_appliance = random.random()
-		print(rate_of_appliance)
 		if rate_of_appliance >= 0.5:
 			image = np.flipud(image)
 			label = np.flipud(label)
