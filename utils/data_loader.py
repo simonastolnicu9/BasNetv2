@@ -276,44 +276,44 @@ class ToTensorLab(object):
 
 
 class ChangeBackground(object):
-  	def __init__(self,appliance):
-	    assert isinstance(appliance, (str))
-	    self.appliance = appliance
-    
-  	def __call__(self, sample):
-	    imidx, image, label = sample['imidx'], sample['image'],sample['label']
-	    rate_of_appliance = 1
-	    if self.appliance != "always":
-	    	rate_of_appliance = random.random()
-	    if rate_of_appliance >= 0.5:
+	def __init__(self,appliance):
+		assert isinstance(appliance, (str))
+		self.appliance = appliance
+	
+	def __call__(self, sample):
+		imidx, image, label = sample['imidx'], sample['image'],sample['label']
+		rate_of_appliance = 1
+		if self.appliance != "always":
+			rate_of_appliance = random.random()
+		if rate_of_appliance >= 0.5:
 			new_img = self.generate_random_gradient(image.shape[1], image.shape[0])
 			idx = (label>=0.5).all(axis=2)
 			new_img_c = new_img.copy()
 			new_img_c[idx] = image[idx]
 			image=new_img_c
-	    return {'imidx':imidx,'image':image, 'label':label}
-  
-  	def generate_random_gradient(self, image_width, image_height):
-	    img = Image.new(mode='RGB', size=(image_width, image_height))
-	    draw = ImageDraw.Draw(img)
+		
+		return {'imidx':imidx,'image':image, 'label':label}
+		
+	def generate_random_gradient(self, image_width, image_height):
+		img = Image.new(mode='RGB', size=(image_width, image_height))
+		draw = ImageDraw.Draw(img)
 
-	    r2,g2,b2 = random.choice([(random.randint(0,255), random.randint(0,255), random.randint(0,255)),(247,243,223),(238,242,239),(234, 234, 234),(180, 170, 168),(74, 74, 70)])
-
-	    r,g,b = r2+(255-r2)*3/4,g2+(255-g2)*3/4,b2+(255-b2)*3/4
-
-	    dr = (r2 - r)/image_height
-	    dg = (g2 - g)/image_height
-	    db = (b2 - b)/image_height  
-	    #grey (247,243, 223)
-	    #grey fotostudio rgb(238, 242, 239)
-	    #grey compare site rgb(234, 234, 234)
-	    #cream rgb(180, 170, 168)
-	    #black comapre site rgb(74, 74, 70)
-
-	    for i in range(image_height):
-	        r,g,b = r+dr, g+dg, b+db
-	        draw.line((0,i,image_height,i), fill=(int(r),int(g),int(b)))
-	    return np.asarray(img)/255
+		r2,g2,b2 = random.choice([(random.randint(0,255), random.randint(0,255), random.randint(0,255)),(247,243,223),(238,242,239),(234, 234, 234),(180, 170, 168),(74, 74, 70)])
+		r,g,b = r2+(255-r2)*3/4,g2+(255-g2)*3/4,b2+(255-b2)*3/4
+		
+		dr = (r2 - r)/image_height
+		dg = (g2 - g)/image_height
+		db = (b2 - b)/image_height  
+		#grey (247,243, 223)
+		#grey fotostudio rgb(238, 242, 239)
+		#grey compare site rgb(234, 234, 234)
+		#cream rgb(180, 170, 168)
+		#black comapre site rgb(74, 74, 70)
+		
+		for i in range(image_height):
+			r,g,b = r+dr, g+dg, b+db
+			draw.line((0,i,image_height,i), fill=(int(r),int(g),int(b)))
+		return np.asarray(img)/255
 
 
 class CombineImages(object):
