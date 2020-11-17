@@ -38,7 +38,8 @@ class RescaleT(object):
 		# lbl = transform.resize(label,(new_h,new_w),mode='constant', order=0, preserve_range=True)
 
 		img = transform.resize(image,(self.output_size,self.output_size),mode='constant')
-		lbl = transform.resize(label,(self.output_size,self.output_size),mode='constant', order=0, preserve_range=True)
+		label = img_as_bool(label)
+		lbl = transform.resize(label,(self.output_size,self.output_size),mode='constant', order=0, preserve_range=True)*255
 
 		return {'imidx':imidx, 'image':img,'label':lbl}
 
@@ -125,7 +126,8 @@ class Rotate(object):
 		if rate_of_appliance >= 0.5:
 			angle = random.uniform(self.degrees[0],self.degrees[1])
 			image = transform.rotate(image, angle, preserve_range=True)
-			label = transform.rotate(label, angle, preserve_range=True)
+			label = img_as_bool(label)
+			label = transform.rotate(label, angle, preserve_range=True)*255
 
 		return {'imidx':imidx,'image':image, 'label':label}
 
@@ -287,7 +289,7 @@ class ChangeBackground(object):
       new_img = self.generate_random_gradient(image.shape[1], image.shape[0])
       idx = (label>=0.5).all(axis=2)
       new_img_c = new_img.copy()
-      new_img_c[idx] = image[idx]#*255
+      new_img_c[idx] = image[idx]
       image=new_img_c
     return {'imidx':imidx,'image':image, 'label':label}
   
@@ -356,9 +358,11 @@ class CombineImages(object):
 				image2 = image2[:,:,np.newaxis]
 				label2 = label2[:,:,np.newaxis]
 			image2 = transform.resize(image2,(image.shape[0],image.shape[1]),mode='constant')
-			label2 = transform.resize(label2,(label.shape[0],label.shape[1]),mode='constant', order=0, preserve_range=True) 
+			label2 = img_as_bool(label2)
+			label2 = transform.resize(label2,(label.shape[0],label.shape[1]),mode='constant', order=0, preserve_range=True)*255 
 			image = transform.resize(np.hstack((image,image2)),(image.shape[0],image.shape[1]),mode='constant')
-			label = transform.resize(np.hstack((label,label2)),(label.shape[0],label.shape[1]),mode='constant', order=0, preserve_range=True)
+			combined_label = img_as_bool(np.hstack((label,label2)))
+			label = transform.resize(combined_label,(label.shape[0],label.shape[1]),mode='constant', order=0, preserve_range=True)*255
 
 		return {'imidx':imidx,'image':image, 'label':label}
 
