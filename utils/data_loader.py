@@ -100,8 +100,11 @@ class RandomCrop(object):
 			top = np.random.randint(0, h - new_h)
 			left = np.random.randint(0, w - new_w)
 
-			image = image[top: top + new_h, left: left + new_w]
-			label = label[top: top + new_h, left: left + new_w]
+			img = image[top: top + new_h, left: left + new_w]
+			lbl = label[top: top + new_h, left: left + new_w]
+            
+			image = transform.resize(img,(image.shape[0],image.shape[1]),mode='constant')
+			label = transform.resize(lbl,(label.shape[0],label.shape[1]),mode='constant', order=0, preserve_range=True)
 
 		return {'imidx':imidx,'image':image, 'label':label}
 		
