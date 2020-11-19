@@ -20,7 +20,6 @@ class RescaleT(object):
 
 	def __call__(self,sample):
 		imidx, image, label = sample['imidx'], sample['image'],sample['label']
-
 		h, w = image.shape[:2]
 
 		if isinstance(self.output_size,int):
@@ -40,6 +39,10 @@ class RescaleT(object):
 		img = transform.resize(image,(self.output_size,self.output_size),mode='constant')
 		label = img_as_bool(label)
 		lbl = transform.resize(label,(self.output_size,self.output_size),mode='constant', order=0, preserve_range=True)*255
+		if img.max() > 1:
+			img=img/255
+		if lbl.max() <= 1:
+			lbl=lbl*255
 
 		return {'imidx':imidx, 'image':img,'label':lbl}
 
@@ -78,15 +81,9 @@ class Rescale(object):
 
 class RandomCrop(object):
 
-	def __init__(self, appliance, output_size):
+	def __init__(self, appliance):
 		assert isinstance(appliance, (str))
 		self.appliance = appliance
-		assert isinstance(output_size, (int, tuple))
-		if isinstance(output_size, int):
-			self.output_size = (output_size, output_size)
-		else:
-			assert len(output_size) == 2
-			self.output_size = output_size
         
 	def __call__(self,sample):
 		imidx, image, label = sample['imidx'], sample['image'], sample['label']
@@ -94,8 +91,9 @@ class RandomCrop(object):
 		if self.appliance != "always":
 			rate_of_appliance = random.random()
 		if rate_of_appliance >= 0.5:
+			output_size=(int(image.shape[0]/2),int(image.shape[1]/2))
 			h, w = image.shape[:2]
-			new_h, new_w = self.output_size
+			new_h, new_w = output_size
 
 			top = np.random.randint(0, h - new_h)
 			left = np.random.randint(0, w - new_w)
@@ -104,8 +102,13 @@ class RandomCrop(object):
 			lbl = label[top: top + new_h, left: left + new_w]
             
 			image = transform.resize(img,(image.shape[0],image.shape[1]),mode='constant')
-			label = transform.resize(lbl,(label.shape[0],label.shape[1]),mode='constant', order=0, preserve_range=True)
-
+			lbl = img_as_bool(lbl)
+			label = transform.resize(lbl,(label.shape[0],label.shape[1]),mode='constant', order=0, preserve_range=True)*255
+		if image.max() > 1:
+			image=image/255
+		if label.max() <= 1:
+			label=label*255
+        
 		return {'imidx':imidx,'image':image, 'label':label}
 		
 
@@ -128,9 +131,13 @@ class Rotate(object):
 			rate_of_appliance = random.random()
 		if rate_of_appliance >= 0.5:
 			angle = random.uniform(self.degrees[0],self.degrees[1])
-			image = transform.rotate(image, angle, preserve_range=True)
+			image = transform.rotate(image, angle)
 			label = img_as_bool(label)
 			label = transform.rotate(label, angle, preserve_range=True)*255
+		if image.max() > 1:
+			image=image/255
+		if label.max() <= 1:
+			label=label*255
 
 		return {'imidx':imidx,'image':image, 'label':label}
 
@@ -149,7 +156,10 @@ class VerticalFlip(object):
 		if rate_of_appliance >= 0.5:
 			image = np.flipud(image)
 			label = np.flipud(label)
-
+		if image.max() > 1:
+			image=image/255
+		if label.max() <= 1:
+			label=label*255
 		return {'imidx':imidx,'image':image, 'label':label}
 
 
@@ -289,10 +299,18 @@ class ChangeBackground(object):
 			rate_of_appliance = random.random()
 		if rate_of_appliance >= 0.5:
 			new_img = self.generate_random_gradient(image.shape[1], image.shape[0])
-			idx = (label>=0.5).all(axis=2)
+			thrs = label.max()/2
+			idx = (label>=thrs).all(axis=2)
 			new_img_c = new_img.copy()
-			new_img_c[idx] = image[idx]
+			if image.max() > 1:
+				new_img_c[idx] = image[idx]/255
+			else:
+				new_img_c[idx] = image[idx]
 			image=new_img_c
+		if image.max() > 1:
+			image=image/255
+		if label.max() <= 1:
+			label=label*255
 		
 		return {'imidx':imidx,'image':image, 'label':label}
 		
@@ -310,7 +328,7 @@ class ChangeBackground(object):
 		#grey fotostudio rgb(238, 242, 239)
 		#grey compare site rgb(234, 234, 234)
 		#cream rgb(180, 170, 168)
-		#black comapre site rgb(74, 74, 70)
+		#black compare site rgb(74, 74, 70)
 		#white
 		
 		for i in range(image_height):
@@ -360,12 +378,24 @@ class CombineImages(object):
 			elif(2==len(image2.shape) and 2==len(label2.shape)):
 				image2 = image2[:,:,np.newaxis]
 				label2 = label2[:,:,np.newaxis]
-			image2 = transform.resize(image2,(image.shape[0],image.shape[1]),mode='constant')
-			label2 = img_as_bool(label2)
-			label2 = transform.resize(label2,(label.shape[0],label.shape[1]),mode='constant', order=0, preserve_range=True)*255 
-			image = transform.resize(np.hstack((image,image2)),(image.shape[0],image.shape[1]),mode='constant')
-			combined_label = img_as_bool(np.hstack((label,label2)))
-			label = transform.resize(combined_label,(label.shape[0],label.shape[1]),mode='constant', order=0, preserve_range=True)*255
+			if image2.shape != image.shape:
+				image2 = transform.resize(image2,(image.shape[0],image.shape[1]),mode='constant')
+				label2 = img_as_bool(label2)
+				label2 = transform.resize(label2,(label.shape[0],label.shape[1]),mode='constant', order=0, preserve_range=True)*255
+			if image.max() > 1:
+				image=image/255
+			if label.max() <= 1:
+				label=label*255
+			if image2.max() > 1:
+				image2 = image2/255
+			if label2.max() <=1:
+				label2 = label2*255
+			image = np.hstack((image,image2))
+			label = np.hstack((label,label2))
+		if image.max() > 1:
+			image=image/255
+		if label.max() <= 1:
+			label=label*255
 
 		return {'imidx':imidx,'image':image, 'label':label}
 
