@@ -37,10 +37,7 @@ class RescaleT(object):
 		# lbl = transform.resize(label,(new_h,new_w),mode='constant', order=0, preserve_range=True)
 
 		img = transform.resize(image,(self.output_size,self.output_size),mode='constant')
-		label = img_as_bool(label)
-		lbl = transform.resize(label,(self.output_size,self.output_size),mode='constant', order=0, preserve_range=True)*255
-		if img.max() > 1:
-			img=img/255
+		lbl = transform.resize(label,(self.output_size,self.output_size),mode='constant', order=0, preserve_range=True)
 		if lbl.max() <= 1:
 			lbl=lbl*255
 
