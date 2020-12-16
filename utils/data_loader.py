@@ -131,7 +131,7 @@ class Rotate(object):
 			self.degrees = degrees
         
 	def __repr__(self):
-        	return self.__class__.__name__ + '(appliance={0}, ' + 'degrees={1})'.format(self.appliance, self.degrees)
+        	return self.__class__.__name__ + '(appliance={0}, degrees={1})'.format(self.appliance, self.degrees)
 	
 	def __call__(self,sample):
 		imidx, image, label = sample['imidx'], sample['image'], sample['label']
