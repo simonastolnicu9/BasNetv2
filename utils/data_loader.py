@@ -17,6 +17,9 @@ class RescaleT(object):
 	def __init__(self,output_size):
 		assert isinstance(output_size,(int,tuple))
 		self.output_size = output_size
+		
+	def __repr__(self):
+        	return self.__class__.__name__ + '(output_size={0})'.format(self.output_size)
 
 	def __call__(self,sample):
 		imidx, image, label = sample['imidx'], sample['image'],sample['label']
@@ -49,7 +52,10 @@ class Rescale(object):
 	def __init__(self,output_size):
 		assert isinstance(output_size,(int,tuple))
 		self.output_size = output_size
-
+		
+	def __repr__(self):
+        	return self.__class__.__name__ + '(output_size={0})'.format(self.output_size)		
+	
 	def __call__(self,sample):
 		imidx, image, label = sample['imidx'], sample['image'],sample['label']
 
@@ -82,6 +88,9 @@ class RandomCrop(object):
 		assert isinstance(appliance, (str))
 		self.appliance = appliance
         
+	def __repr__(self):
+        	return self.__class__.__name__ + '(appliance={0})'.format(self.appliance)
+	
 	def __call__(self,sample):
 		imidx, image, label = sample['imidx'], sample['image'], sample['label']
 		rate_of_appliance = 1
@@ -121,6 +130,9 @@ class Rotate(object):
 			assert len(degrees) == 2
 			self.degrees = degrees
         
+	def __repr__(self):
+        	return self.__class__.__name__ + '(appliance={0}, ' + 'degrees={1})'.format(self.appliance, self.degrees)
+	
 	def __call__(self,sample):
 		imidx, image, label = sample['imidx'], sample['image'], sample['label']
 		rate_of_appliance = 1
@@ -144,7 +156,10 @@ class VerticalFlip(object):
 	def __init__(self, appliance):
 		assert isinstance(appliance, (str))
 		self.appliance = appliance
-
+		
+	def __repr__(self):
+        	return self.__class__.__name__ + '(appliance={0})'.format(self.appliance)
+	
 	def __call__(self,sample):
 		imidx, image, label = sample['imidx'], sample['image'], sample['label']
 		rate_of_appliance = 1
@@ -288,6 +303,9 @@ class ChangeBackground(object):
 	def __init__(self,appliance):
 		assert isinstance(appliance, (str))
 		self.appliance = appliance
+		
+	def __repr__(self):
+        	return self.__class__.__name__ + '(appliance={0})'.format(self.appliance)
 	
 	def __call__(self, sample):
 		imidx, image, label = sample['imidx'], sample['image'],sample['label']
@@ -344,6 +362,9 @@ class CombineImages(object):
 		self.img_name_list = img_name_list
 		self.label_name_list=label_name_list
         
+	def __repr__(self):
+        	return self.__class__.__name__ + '(appliance={0})'.format(self.appliance)
+	
 	def __call__(self,sample):
 		imidx, image, label = sample['imidx'], sample['image'], sample['label']
 		rate_of_appliance = 1
